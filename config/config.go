@@ -3,11 +3,12 @@ package config
 import (
 	"flag"
 	"fmt"
-	"github.com/imgproxy/imgproxy/v3/proxy"
 	"math"
 	"os"
 	"regexp"
 	"runtime"
+
+	"github.com/imgproxy/imgproxy/v3/proxy"
 
 	log "github.com/sirupsen/logrus"
 
@@ -88,6 +89,12 @@ var (
 	S3Enabled  bool
 	S3Region   string
 	S3Endpoint string
+
+	AWS struct {
+		AccessKeyID     string
+		SecretAccessKey string
+		Bucket          string
+	}
 
 	GCSEnabled  bool
 	GCSKey      string
@@ -415,6 +422,10 @@ func Configure() error {
 	configurators.Bool(&S3Enabled, "IMGPROXY_USE_S3")
 	configurators.String(&S3Region, "IMGPROXY_S3_REGION")
 	configurators.String(&S3Endpoint, "IMGPROXY_S3_ENDPOINT")
+
+	configurators.String(&AWS.Bucket, "IMGPROXY_AWS_BUCKET")
+	configurators.String(&AWS.AccessKeyID, "IMGPROXY_AWS_ACCESS_KEY_ID")
+	configurators.String(&AWS.SecretAccessKey, "IMGPROXY_AWS_SECRET_ACCESS_KEY")
 
 	configurators.Bool(&GCSEnabled, "IMGPROXY_USE_GCS")
 	configurators.String(&GCSKey, "IMGPROXY_GCS_KEY")

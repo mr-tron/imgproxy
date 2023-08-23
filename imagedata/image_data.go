@@ -4,13 +4,14 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
-	"golang.org/x/net/proxy"
 	"net/http"
 	"net/http/cookiejar"
 	"os"
 	path2 "path"
 	"strings"
 	"sync"
+
+	"golang.org/x/net/proxy"
 
 	"github.com/imgproxy/imgproxy/v3/config"
 	"github.com/imgproxy/imgproxy/v3/ierrors"
@@ -55,6 +56,10 @@ func Init(dialer proxy.Dialer) error {
 	}
 
 	if err := loadFallbackImage(); err != nil {
+		return err
+	}
+
+	if err := newAWSConnection(); err != nil {
 		return err
 	}
 
@@ -151,13 +156,11 @@ func Download(imageURL, desc string, header http.Header, jar *cookiejar.Jar) (*I
 		}
 		return nil, ierrors.WrapWithPrefix(err, 1, fmt.Sprintf("Can't download %s", desc))
 	}
-	if config.LocalFileSystemCache != "" {
-		f, err := os.Create(path)
-		if err == nil {
-			f.Write(imgdata.Data)
-			f.Close()
-			fmt.Println("save")
-		}
+
+	err = UploadImage(aswClient, path, imgdata)
+	if err != nil {
+		return nil, err
 	}
+
 	return imgdata, nil
 }
